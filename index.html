@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>do.main | Domain Lookup</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #000;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 10px;
+            border: 2px solid #000;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #444;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: #000;
+            color: #2d3436;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .bg-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            opacity: 1;
+            z-index: -1;
+            transition: opacity 0.8s ease-in-out;
+            background-color: #000;
+        }
+
+        .bg-dimmer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(4px);
+            z-index: -1;
+        }
+
+        .top-nav {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            z-index: 100;
+        }
+
+        .github-link {
+            background: white;
+            border: 1px solid #eee;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease;
+        }
+
+        .github-link:hover {
+            transform: scale(1.1);
+        }
+
+        .github-link svg {
+            width: 20px;
+            height: 20px;
+            fill: #1a1a1a;
+        }
+
+        .lang-btn {
+            background: white;
+            border: 1px solid #eee;
+            padding: 8px 16px;
+            border-radius: 50px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.2s ease;
+        }
+
+        .lang-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 8px;
+            background: white;
+            border: 1px solid #eee;
+            border-radius: 12px;
+            list-style: none;
+            overflow: hidden;
+            display: none;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .lang-dropdown.active {
+            display: block;
+        }
+
+        .lang-option {
+            padding: 12px 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            white-space: nowrap;
+        }
+
+        .lang-option:hover {
+            background: #f8f9fa;
+        }
+
+        .flag {
+            width: 20px;
+            height: 14px;
+            object-fit: cover;
+            border-radius: 2px;
+        }
+
+        .ads-container {
+            width: 100%;
+            max-width: 728px;
+            margin: 1rem auto;
+            text-align: center;
+            overflow: hidden;
+            min-height: 90px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            width: 95%;
+            max-width: 750px;
+            padding: 3rem 2rem;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            border-radius: 32px;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.4);
+            margin: 20px 0;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .title-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2.5rem, 8vw, 3.5rem);
+            color: #1a1a1a;
+            font-weight: 600;
+            line-height: 1;
+        }
+
+        .attribution {
+            font-size: 0.85rem;
+            color: #636e72;
+            text-decoration: none;
+            font-weight: 500;
+            margin-top: 5px;
+            transition: color 0.2s;
+        }
+
+        .attribution:hover {
+            color: #000;
+        }
+
+        p.subtitle {
+            font-weight: 300;
+            color: #636e72;
+            margin-bottom: 2.5rem;
+            font-size: 1.1rem;
+        }
+
+        .search-area {
+            max-width: 500px;
+            margin: 0 auto 2.5rem;
+        }
+
+        .search-box {
+            display: flex;
+            background: white;
+            padding: 6px;
+            border-radius: 100px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            border: 1px solid #eee;
+        }
+
+        input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            padding: 12px 24px;
+            font-size: 1.1rem;
+            font-family: inherit;
+            color: #2d3436;
+            width: 100%;
+        }
+
+        button#searchBtn {
+            background: #1a1a1a;
+            color: #ffffff;
+            border: none;
+            padding: 0 32px;
+            border-radius: 100px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        button#searchBtn:hover {
+            background: #000;
+        }
+
+        #result {
+            display: none;
+            text-align: left;
+            margin-top: 1rem;
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .status-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 2rem;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .status-text {
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-size: 0.95rem;
+        }
+
+        .available .status-dot { background: #00b894; box-shadow: 0 0 12px rgba(0,184,148,0.5); }
+        .available .status-text { color: #00b894; }
+        .registered .status-dot { background: #d63031; box-shadow: 0 0 12px rgba(214,48,49,0.5); }
+        .registered .status-text { color: #d63031; }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            padding: 1.5rem;
+            background: #fcfcfc;
+            border-radius: 20px;
+            border: 1px solid #f1f1f1;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .detail-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #b2bec3;
+            font-weight: 700;
+        }
+
+        .detail-value {
+            font-size: 0.9rem;
+            color: #2d3436;
+            font-weight: 500;
+            word-break: break-all;
+        }
+
+        .loader {
+            display: none;
+            margin: 30px auto;
+            width: 28px;
+            height: 28px;
+            border: 3px solid #f1f1f1;
+            border-top: 3px solid #1a1a1a;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .error-msg {
+            color: #d63031;
+            font-size: 0.85rem;
+            margin-top: 15px;
+            font-weight: 500;
+        }
+
+        @media (max-width: 600px) {
+            .container { padding: 2rem 1.5rem; }
+            .top-nav { top: 1rem; right: 1rem; }
+            .search-box { flex-direction: column; border-radius: 20px; gap: 8px; }
+            button#searchBtn { padding: 12px; border-radius: 12px; }
+            input { text-align: center; }
+            .ads-container { max-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-overlay" id="bgOverlay"></div>
+    <div class="bg-dimmer"></div>
+
+    <div class="top-nav">
+        <a href="https://github.com/l0adfun/do.main/" target="_blank" class="github-link" title="GitHub Repository">
+            <svg viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+        </a>
+        <div class="lang-selector">
+            <button class="lang-btn" id="langBtn">
+                <img src="https://flagcdn.com/w40/gb.png" class="flag" id="currentFlag">
+                <span id="currentLangLabel">English</span>
+            </button>
+            <ul class="lang-dropdown" id="langDropdown">
+                <li class="lang-option" onclick="setLanguage('en')">
+                    <img src="https://flagcdn.com/w40/gb.png" class="flag"> English
+                </li>
+                <li class="lang-option" onclick="setLanguage('tr')">
+                    <img src="https://flagcdn.com/w40/tr.png" class="flag"> Türkçe
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="ads-container">
+        <ins class="adsbygoogle"
+             style="display:inline-block;width:728px;height:90px"
+             data-ad-client="ca-pub-0000000000000000"
+             data-ad-slot="0000000000"></ins>
+    </div>
+
+    <div class="container">
+        <div class="title-group">
+            <h1 id="title">do.main</h1>
+            <a href="https://github.com/l0adfun/" target="_blank" class="attribution">by l0adfun</a>
+        </div>
+        <p class="subtitle" id="subtitle">Enter a domain to discover its availability.</p>
+        
+        <div class="search-area">
+            <div class="search-box">
+                <input type="text" id="domainInput" placeholder="example.com" spellcheck="false" autocomplete="off">
+                <button id="searchBtn">Search</button>
+            </div>
+            <div id="errorBox" class="error-msg"></div>
+        </div>
+
+        <div class="loader" id="loader"></div>
+
+        <div id="result">
+            <div id="statusWrapper" class="status-header">
+                <div class="status-dot"></div>
+                <span class="status-text" id="statusLabel"></span>
+            </div>
+
+            <div class="details-grid">
+                <div class="detail-item">
+                    <span class="detail-label" id="lblRegistrar">Registrar</span>
+                    <span class="detail-value" id="resRegistrar">N/A</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label" id="lblCreated">Created</span>
+                    <span class="detail-value" id="resCreated">N/A</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label" id="lblExpires">Expires</span>
+                    <span class="detail-value" id="resExpires">N/A</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label" id="lblUpdated">Last Update</span>
+                    <span class="detail-value" id="resUpdated">N/A</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="ads-container">
+        <ins class="adsbygoogle"
+             style="display:inline-block;width:728px;height:90px"
+             data-ad-client="ca-pub-0000000000000000"
+             data-ad-slot="1111111111"></ins>
+    </div>
+
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-0000000000000000" crossorigin="anonymous"></script>
+
+    <script>
+        const translations = {
+            en: {
+                subtitle: "Enter a domain to discover its availability.",
+                search: "Search",
+                placeholder: "example.com",
+                available: "Status: Available",
+                registered: "Status: Registered",
+                registrar: "Registrar",
+                created: "Created",
+                expires: "Expires",
+                updated: "Last Update",
+                errorValid: "Please enter a valid domain name.",
+                errorReach: "Unable to reach lookup service. Try common TLDs.",
+                langLabel: "English",
+                na: "N/A"
+            },
+            tr: {
+                subtitle: "Müsaitlik durumunu öğrenmek için bir alan adı girin.",
+                search: "Sorgula",
+                placeholder: "ornek.com",
+                available: "Durum: Müsait",
+                registered: "Durum: Kayıtlı",
+                registrar: "Kayıt Kuruluşu",
+                created: "Oluşturulma",
+                expires: "Bitiş Tarihi",
+                updated: "Son Güncelleme",
+                errorValid: "Lütfen geçerli bir alan adı girin.",
+                errorReach: "Sorgu servisine ulaşılamadı. Yaygın uzantıları deneyin.",
+                langLabel: "Türkçe",
+                na: "N/A"
+            }
+        };
+
+        let currentLang = 'en';
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            const t = translations[lang];
+            
+            document.getElementById('subtitle').textContent = t.subtitle;
+            document.getElementById('searchBtn').textContent = t.search;
+            document.getElementById('domainInput').placeholder = t.placeholder;
+            document.getElementById('lblRegistrar').textContent = t.registrar;
+            document.getElementById('lblCreated').textContent = t.created;
+            document.getElementById('lblExpires').textContent = t.expires;
+            document.getElementById('lblUpdated').textContent = t.updated;
+            document.getElementById('currentLangLabel').textContent = t.langLabel;
+            document.getElementById('currentFlag').src = lang === 'en' ? 'https://flagcdn.com/w40/gb.png' : 'https://flagcdn.com/w40/tr.png';
+            
+            document.getElementById('langDropdown').classList.remove('active');
+            
+            if (document.getElementById('result').style.display === 'block') {
+                const isAvail = document.getElementById('statusWrapper').classList.contains('available');
+                document.getElementById('statusLabel').textContent = isAvail ? t.available : t.registered;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const bgOverlay = document.getElementById('bgOverlay');
+            const searchBtn = document.getElementById('searchBtn');
+            const domainInput = document.getElementById('domainInput');
+            const resultDiv = document.getElementById('result');
+            const loader = document.getElementById('loader');
+            const errorBox = document.getElementById('errorBox');
+            const langBtn = document.getElementById('langBtn');
+            const langDropdown = document.getElementById('langDropdown');
+
+            const keywords = ['landscape', 'abstract', 'architecture', 'nature', 'technology'];
+            const randomKeyword = keywords[Math.floor(Math.random() * keywords.length)];
+            const highResUrl = `https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&q=80&w=2560`;
+            const randomHighRes = `https://source.unsplash.com/featured/2560x1440?${randomKeyword}`;
+            
+            bgOverlay.style.backgroundImage = `url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=2560')`;
+
+            langBtn.addEventListener('click', () => {
+                langDropdown.classList.toggle('active');
+            });
+
+            setTimeout(() => {
+                try {
+                    (adsbygoogle = window.adsbygoogle || []).push({});
+                    (adsbygoogle = window.adsbygoogle || []).push({});
+                } catch (e) {}
+            }, 500);
+
+            async function performLookup() {
+                const domain = domainInput.value.trim().toLowerCase();
+                const t = translations[currentLang];
+                
+                if (!domain || !domain.includes('.')) {
+                    errorBox.textContent = t.errorValid;
+                    return;
+                }
+
+                errorBox.textContent = "";
+                resultDiv.style.display = 'none';
+                loader.style.display = 'block';
+
+                try {
+                    const response = await fetch(`https://rdap.org/domain/${domain}`);
+                    loader.style.display = 'none';
+
+                    if (response.status === 404) {
+                        showResult(true);
+                    } else if (response.ok) {
+                        const data = await response.json();
+                        showResult(false, data);
+                    } else {
+                        throw new Error();
+                    }
+                } catch (err) {
+                    loader.style.display = 'none';
+                    errorBox.textContent = t.errorReach;
+                }
+            }
+
+            function showResult(isAvailable, data = null) {
+                const t = translations[currentLang];
+                resultDiv.style.display = 'block';
+                const wrapper = document.getElementById('statusWrapper');
+                
+                if (isAvailable) {
+                    wrapper.className = "status-header available";
+                    document.getElementById('statusLabel').textContent = t.available;
+                    document.getElementById('resRegistrar').textContent = "N/A";
+                    document.getElementById('resCreated').textContent = "N/A";
+                    document.getElementById('resExpires').textContent = "N/A";
+                    document.getElementById('resUpdated').textContent = "N/A";
+                } else {
+                    wrapper.className = "status-header registered";
+                    document.getElementById('statusLabel').textContent = t.registered;
+
+                    let registrarName = "N/A";
+                    if (data.entities) {
+                        const registrar = data.entities.find(e => e.roles && e.roles.includes('registrar'));
+                        if (registrar && registrar.vcardArray) {
+                            const fn = registrar.vcardArray[1].find(a => a[0] === 'fn');
+                            if (fn) registrarName = fn[3];
+                        }
+                    }
+                    if (registrarName === "N/A" && data.port43) {
+                        const match = data.port43.match(/Registrar: (.*)/i);
+                        if (match) registrarName = match[1].trim();
+                    }
+                    
+                    document.getElementById('resRegistrar').textContent = registrarName || "N/A";
+                    
+                    const events = data.events || [];
+                    const created = events.find(e => e.eventAction === 'registration')?.eventDate;
+                    const expires = events.find(e => e.eventAction === 'expiration')?.eventDate;
+                    const updated = events.find(e => e.eventAction === 'last changed')?.eventDate;
+
+                    const fmt = (d) => d ? new Date(d).toLocaleDateString(currentLang === 'tr' ? 'tr-TR' : 'en-US') : "N/A";
+                    
+                    document.getElementById('resCreated').textContent = fmt(created);
+                    document.getElementById('resExpires').textContent = fmt(expires);
+                    document.getElementById('resUpdated').textContent = fmt(updated);
+                }
+            }
+
+            searchBtn.addEventListener('click', performLookup);
+            domainInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') performLookup();
+            });
+
+            window.addEventListener('click', (e) => {
+                if (!langBtn.contains(e.target)) langDropdown.classList.remove('active');
+            });
+        });
+    </script>
+</body>
+</html>
