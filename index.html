@@ -354,6 +354,125 @@
             input { text-align: center; }
             .ads-container { max-width: 100%; }
         }
+                .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .popup {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .popup-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .warning-icon {
+            width: 50px;
+            height: 50px;
+            background: #ff9800;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 30px;
+            color: white;
+            margin-right: 15px;
+        }
+
+        .popup h2 {
+            color: #333;
+            font-size: 24px;
+        }
+
+        .popup-content {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .popup-content ul {
+            margin: 15px 0;
+            padding-left: 20px;
+        }
+
+        .popup-content li {
+            margin: 8px 0;
+        }
+
+        .example {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: monospace;
+        }
+
+        .correct {
+            color: #4caf50;
+        }
+
+        .incorrect {
+            color: #f44336;
+        }
+
+        .popup-button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.3s;
+        }
+
+        .popup-button:hover {
+            background: #5568d3;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        button1 {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button1:hover {
+            background: #5568d3;
+        }
     </style>
 </head>
 <body>
@@ -437,6 +556,29 @@
              style="display:inline-block;width:728px;height:90px"
              data-ad-client="ca-pub-0000000000000000"
              data-ad-slot="1111111111"></ins>
+    </div>
+        <div id="warningPopup" class="popup-overlay">
+        <div class="popup">
+            <div class="popup-header">
+                <div class="warning-icon">⚠</div>
+                <h2>Important Notice</h2>
+            </div>
+            <div class="popup-content">
+                <p><strong>Please enter domain names correctly:</strong></p>
+                <ul>
+                    <li>Do NOT include http:// or https://</li>
+                    <li>Do NOT include subdomains (www, mail, etc.)</li>
+                    <li>Enter only the main domain name</li>
+                </ul>
+                <div class="example">
+                    <div class="correct">✓ Correct: example.com</div>
+                    <div class="incorrect">✗ Wrong: https://example.com</div>
+                    <div class="incorrect">✗ Wrong: http://example.com</div>
+                    <div class="incorrect">✗ Wrong: www.example.com</div>
+                </div>
+            </div>
+            <button class="popup-button" onclick="closePopup()">I Understand</button>
+        </div>
     </div>
 
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-0000000000000000" crossorigin="anonymous"></script>
@@ -611,6 +753,17 @@
                 if (!langBtn.contains(e.target)) langDropdown.classList.remove('active');
             });
         });
+    </script>
+        <script>
+        function closePopup() {
+            document.getElementById('warningPopup').classList.add('hidden');
+            document.getElementById('mainContent').classList.remove('hidden');
+        }
+
+        function lookupDomain() {
+            const domain = document.getElementById('domainInput').value;
+            alert('Looking up: ' + domain);
+        }
     </script>
 </body>
 </html>
